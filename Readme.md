@@ -6,7 +6,7 @@ Usage:
 
 From the build directory:
 
-cscript (executable name) (executable options)
+`cscript (executable name) (executable options)`
 Runs make in directory then calls `executable name` with given options
     
 To run outside project build directory, use the `-f (build directory)` option. This `make`s the project in the given directory, then copies the executable to the current working directory and runs it.
