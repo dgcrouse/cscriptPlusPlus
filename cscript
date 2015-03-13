@@ -1,0 +1,65 @@
+#!/bin/bash
+
+while getopts ":lf:m:" opt; do
+    case $opt in
+        
+        # -f <folder> run make and find executable in this folder (defaults to working directory)
+        f)
+            FOLDER=$OPTARG
+        ;;
+        
+        # -m <target> make this target
+        m)
+        if [ "$OPTARG" != clean ]; then
+            MAKEARGS=$OPTARG
+        else
+            echo Cannot run \"make clean\"
+            exit 1
+        fi
+        ;;
+        
+        # -l run executable in directory specified in -f. Otherwise, copies and runs from working directory
+        l)
+            LOCAL=true
+        ;;
+        
+        \?)
+            echo Invalid option $OPTARG
+            exit 1
+        ;;
+        
+        :)
+            echo Option $OPTARG requires an argument
+            exit 1
+        ;;
+        
+    esac
+done
+
+shift $((OPTIND-1))
+
+# error if no executable name provided
+if [ "$#" -lt 1 ]; then
+  echo No executable name provided
+  exit 1  
+fi
+
+if [ -n $FOLDER ] # if FOLDER set
+then
+    dir=$PWD
+    cd $FOLDER
+    if make $MAKEARGS; then
+        if [ -z $LOCAL ]; then # if LOCAL not set
+            cp $1 $dir
+            cd $dir
+        fi
+        ./$1 ${*:2}
+        if [ -n $LOCAL ]; then # if LOCAL set
+            cd $dir
+        fi
+    else
+        cd $dir
+    fi
+else
+    make $MAKEARGS && ./$1 ${*:2}  
+fi
